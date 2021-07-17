@@ -28,8 +28,8 @@ class GoogleAnalyticsClient:
         body = {
             "viewId": self.view_id,
             "dateRanges": {"starDate": self.start_date, "endDate": self.end_date},
-            "dimensions": self._generate_dimensions(kwargs.get("dimensions"), bool(kwargs.get("segments"))),
-            "metrics": self._generate_metrics(kwargs.get("metrics")),
+            "dimensions": self.generate_dimensions(kwargs.get("dimensions"), bool(kwargs.get("segments"))),
+            "metrics": self.generate_metrics(kwargs.get("metrics")),
             "filtersExpression": kwargs.get("filter"),
             "pageToken": kwargs.get("pageToken"),
             "samplingLevel": "LARGE",
@@ -107,7 +107,7 @@ class GoogleAnalyticsClient:
         response = (
             self.client.reports().batchGet(body={"reportRequests": request_body}).execute()
         )
-        parsed = self._parse_response(response)
+        parsed = self.parse_response(response)
         yield parsed["data"]
         kwargs["pageToken"] = parsed.get("info", {}).get("nextPageToken", None)
         self.fetch(**kwargs)
