@@ -145,7 +145,7 @@ class GoogleAnalyticsClient:
             if not kwargs["pageToken"]:
                 break
 
-    def fetch_all(self, **kwargs) -> List[dict]:
+    def fetch_all(self, **kwargs) -> pd.DataFrame:
         all_data = []
         for f in self.fetch(**kwargs):
             all_data.append(f)
