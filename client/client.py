@@ -7,7 +7,9 @@ import pandas as pd
 
 
 class GoogleAnalyticsClient:
-
+    """
+    Instance of client
+    """
     SCOPES = ["https://www.googleapis.com/auth/analytics.readonly"]
     API_NAME = "analyticsreporting"
     API_VERSIONS = "v4"
@@ -18,6 +20,13 @@ class GoogleAnalyticsClient:
                  start_date: datetime.date,
                  end_date: datetime.date,
                  ):
+        """
+
+        :param json_file:str a filename where stored credentials
+        :param view_id:str google analytics view id
+        :param start_date:datetime.date start date
+        :param end_date: datetime.date end date
+        """
         self.credentials = ServiceAccountCredentials.from_json_keyfile_name(json_file, scopes=self.SCOPES)
         self.client = build()
         self.view_id = view_id
@@ -25,6 +34,11 @@ class GoogleAnalyticsClient:
         self.end_date = end_date
 
     def generate_request(self, **kwargs) -> dict:
+        """
+        func what generate request body for google analytics
+        :param kwargs: params
+        :return:dict where stored prepared parameters for request to google analytics
+        """
         body = {
             "viewId": self.view_id,
             "dateRanges": {"starDate": self.start_date, "endDate": self.end_date},
@@ -41,16 +55,31 @@ class GoogleAnalyticsClient:
         return body
 
     def generate_dimensions(self, dimensions: list, segments: bool) -> List[dict]:
+        """
+        func which prepared your dimensions for a google analytics query
+        :param dimensions:list
+        :param segments:bool
+        :return:List[dict]
+        """
         dimensions = list(map(lambda x: {"name": x}, dimensions))
         if segments:
             dimensions.append({"name": "ga:segment"})
         return dimensions
 
     def generate_metrics(self, metrics: list) -> List[dict]:
+        """
+        func which prepared your metrics for a google analytics query
+        :param metrics:list
+        :return:List[dict]
+        """
         return list(map(lambda x: {"expression": x}, metrics))
 
     def parse_response(self, response) -> dict:
-
+        """
+        func which parsed returned response from google analytics
+        :param response:
+        :return:
+        """
         report = response.get("reports")[0]
         report_data = report.get("data", {})
 
@@ -102,7 +131,7 @@ class GoogleAnalyticsClient:
         result["data"] = df
         return result
 
-    def fetch(self, **kwargs) -> None:
+    def fetch(self, **kwargs) -> dict or None:
         request_body = self.generate_request(**kwargs)
         response = (
             self.client.reports().batchGet(body={"reportRequests": request_body}).execute()
