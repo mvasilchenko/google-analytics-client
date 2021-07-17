@@ -12,13 +12,13 @@ class GoogleAnalyticsClient:
     """
     SCOPES = ["https://www.googleapis.com/auth/analytics.readonly"]
     API_NAME = "analyticsreporting"
-    API_VERSIONS = "v4"
+    API_VERSION = "v4"
 
     def __init__(self,
                  json_file: str,
                  view_id: str,
-                 start_date: datetime.date,
-                 end_date: datetime.date,
+                 start_date: str,
+                 end_date: str,
                  ):
         """
 
@@ -28,7 +28,7 @@ class GoogleAnalyticsClient:
         :param end_date: datetime.date end date
         """
         self.credentials = ServiceAccountCredentials.from_json_keyfile_name(json_file, scopes=self.SCOPES)
-        self.client = build()
+        self.client = build(self.API_NAME, self.API_VERSION, credentials=self.credentials)
         self.view_id = view_id
         self.start_date = start_date
         self.end_date = end_date
@@ -41,7 +41,7 @@ class GoogleAnalyticsClient:
         """
         body = {
             "viewId": self.view_id,
-            "dateRanges": {"starDate": self.start_date, "endDate": self.end_date},
+            "dateRanges": {"startDate": self.start_date, "endDate": self.end_date},
             "dimensions": self.generate_dimensions(kwargs.get("dimensions"), bool(kwargs.get("segments"))),
             "metrics": self.generate_metrics(kwargs.get("metrics")),
             "filtersExpression": kwargs.get("filter"),
@@ -143,3 +143,7 @@ class GoogleAnalyticsClient:
         if not kwargs["pageToken"]:
             response["info"] = parsed.get("info")
             return
+
+    def fetch_all(self, **kwargs):
+        for data in self.fetch(**kwargs):
+            print(data)
