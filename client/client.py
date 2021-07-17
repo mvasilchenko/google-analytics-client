@@ -1,9 +1,8 @@
-import datetime
+from typing import List
 
+import pandas as pd
 from googleapiclient.discovery import build
 from oauth2client.service_account import ServiceAccountCredentials
-from typing import List
-import pandas as pd
 
 
 class GoogleAnalyticsClient:
@@ -41,7 +40,10 @@ class GoogleAnalyticsClient:
         """
         body = {
             "viewId": self.view_id,
-            "dateRanges": {"startDate": self.start_date, "endDate": self.end_date},
+            "dateRanges": {
+                "startDate": kwargs.get("start_date", self.start_date),
+                "endDate": kwargs.get("end_date", self.end_date),
+            },
             "dimensions": self.generate_dimensions(kwargs.get("dimensions"), bool(kwargs.get("segments"))),
             "metrics": self.generate_metrics(kwargs.get("metrics")),
             "filtersExpression": kwargs.get("filter"),
