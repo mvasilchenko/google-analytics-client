@@ -131,19 +131,23 @@ class GoogleAnalyticsClient:
         result["data"] = df
         return result
 
-    def fetch(self, **kwargs) -> dict or None:
-        request_body = self.generate_request(**kwargs)
-        response = (
-            self.client.reports().batchGet(body={"reportRequests": request_body}).execute()
-        )
-        parsed = self.parse_response(response)
-        yield parsed["data"]
-        kwargs["pageToken"] = parsed.get("info", {}).get("nextPageToken", None)
-        self.fetch(**kwargs)
-        if not kwargs["pageToken"]:
-            response["info"] = parsed.get("info")
-            return
+    def fetch(self, **kwargs) -> dict:
+        while True:
+            request_body = self.generate_request(**kwargs)
+            raw_response = (
+                self.client.reports()
+                    .batchGet(body={"reportRequests": request_body})
+                    .execute()
+            )
+            parsed = self.parse_response(raw_response)
+            yield parsed["data"]
+            kwargs["pageToken"] = parsed.get("info", {}).get("nextPageToken", None)
+            if not kwargs["pageToken"]:
+                break
 
-    def fetch_all(self, **kwargs):
-        for data in self.fetch(**kwargs):
-            print(data)
+    def fetch_all(self, **kwargs) -> List[dict]:
+        all_data = []
+        for f in self.fetch(**kwargs):
+            all_data.append(f)
+        all_data = pd.concat(all_data).reset_index(drop=True)
+        return all_data
