@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "google-analytics-client"
-version = "0.1.0"
+version = "0.1.1"
 description = "Google Analytics client for Python3"
 authors = ["Mikhail Vasilchenko <rekoy88@gmail.com>"]
 license = "MIT"
