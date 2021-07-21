@@ -7,7 +7,7 @@ Google analytics Report API v4 for Python3
 ## Example
 
 ```python
-from client import GoogleAnalyticsClient
+from google_analytics_client import GoogleAnalyticsClient
 
 cli = GoogleAnalyticsClient(
     json_file="yourfile.json",
